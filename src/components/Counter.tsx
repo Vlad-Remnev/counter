@@ -1,38 +1,42 @@
-import React, {useEffect, useState} from 'react';
+import React, {useEffect, useReducer, useState} from 'react';
 import {CounterSet} from "./CounterSet";
 import {CounterShow} from "./CounterShow";
+import {addValueAC, countReducer} from "../reducers/countReducer";
+import {addMaxValueAC, maxCountReducer} from "../reducers/maxCountReducer";
+import {addStartValueAC, startCountReducer} from "../reducers/startCountReducer";
+import {useDispatch, useSelector} from "react-redux";
+import {AppRootReducer} from "../store/store";
 
 export const Counter = () => {
-
-    const [maxCount, setMaxCount] = useState(0)
-    const [startCount, setStartCount] = useState(0)
-    const [count, setCount] = useState(0)
     const [error, setError] = useState('')
-    const [show, setShow] = useState(true)
 
-    useEffect(() => {
-        let countString = localStorage.getItem('countValue')
-        if (countString) {
-            let newCount = JSON.parse(countString)
-            setCount(newCount)
-        }
-    }, [])
+    const dispatch = useDispatch()
+    const count = useSelector<AppRootReducer, number>(state => state.count)
+    const startCount = useSelector<AppRootReducer, number>(state => state.startCount)
+    const maxCount = useSelector<AppRootReducer, number>(state => state.maxCount)
 
-    useEffect(() => {
-        localStorage.setItem('countValue', JSON.stringify(count))
-    }, [count])
+    // useEffect(() => {
+    //     let countString = localStorage.getItem('countValue')
+    //     if (countString) {
+    //         let newCount = JSON.parse(countString)
+    //         dispatch(addValueAC(newCount))
+    //     }
+    // }, [])
+    //
+    // useEffect(() => {
+    //     localStorage.setItem('countValue', JSON.stringify(count))
+    // }, [count])
 
     const addValues = () => {
         setError('')
-        setCount(startCount)
-        setShow(!show)
+        dispatch(addValueAC(startCount))
     }
 
     let classNameInputStart = 'inputError'
 
 
     const onChangeMaxInput = (value: number) => {
-        setMaxCount(value)
+        dispatch(addMaxValueAC(value))
         if (value <= startCount || value < 0) {
             setError('Incorrect value')
         } else {
@@ -41,7 +45,7 @@ export const Counter = () => {
     }
 
     const onChangeStartInput = (value: number) => {
-        setStartCount(value)
+        dispatch(addStartValueAC(value))
         if (value >= maxCount || value < 0) {
             setError('Incorrect value')
         } else {
@@ -51,7 +55,6 @@ export const Counter = () => {
 
     return (
         <>
-
                 <CounterSet error={error}
                               maxCount={maxCount}
                               startCount={startCount}
@@ -64,11 +67,8 @@ export const Counter = () => {
                                error={error}
                                maxCount={maxCount}
                                startCount={startCount}
-                               setCount={setCount}
                                addValues={addValues}
                 />
-
-
         </>
     );
 };
